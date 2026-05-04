@@ -39,8 +39,7 @@ def load_data(path, default_age = 2026):
 
 
 st.title("Boston Blue Bikes from September 2020")
-df = load_data(r"C:\Users\sofia\PycharmProjects\PythonProject\PythonProject2\202009-bluebikes-tripdata.csv")
-
+df = load_data("202009-bluebikes-tripdata.csv")
 st.write(f"Loaded {len(df):,} trips.")
 st.dataframe(df.head())
 

@@ -30,7 +30,7 @@ def load_data(path, sample_frac=1.0):
     return df
 
 
-df = load_data(r"C:\Users\sofia\PycharmProjects\PythonProject\PythonProject2\202009-bluebikes-tripdata.csv")
+df = load_data("202009-bluebikes-tripdata.csv")
 st.title("When does Boston ride?")
 st.write("This page explores when Boston rides, by trip duration and time of the day")
 

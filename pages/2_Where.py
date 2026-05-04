@@ -32,7 +32,7 @@ def load_data(path, sample_frac=1.0):
 
     return df
 
-df = load_data(r"C:\Users\sofia\PycharmProjects\PythonProject\PythonProject2\202009-bluebikes-tripdata.csv")
+df = load_data("202009-bluebikes-tripdata.csv")
 
 st.title("Where does Boston ride?")
 st.write("This page shows the busiest stations and a map of where the trips start!")
