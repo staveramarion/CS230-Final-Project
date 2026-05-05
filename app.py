@@ -15,8 +15,7 @@ import pandas as pd
 # [ST4] customizing page
 st.set_page_config( page_title="Boston Blue Bikes", page_icon= "🚲", layout="wide", initial_sidebar_state="expanded")
 # [PY1] function two parameters, default_age has a default value
-@st.cache_data
-def load_data(path, default_age = 2026):
+def load_data(path, max_minutes=180):
     # [PY3] try/except for error checking
     try:
         df = pd.read_csv(path)
@@ -24,7 +23,10 @@ def load_data(path, default_age = 2026):
         st.error(f"Could not find {path}")
         return pd.DataFrame()
     # [DA1] clean columns names, making them lowercase with underscores
-    df.columns = [c.strip().lower().replace(" ","_") for c in df.columns]
+    new_columns = []
+    for col in df.columns:
+        new_columns.append(col.lower())
+    df.columns = new_columns
     # [DA1] parse the date columns
     df["starttime"] = pd.to_datetime(df["starttime"],errors="coerce")
     df = df.dropna(subset=["starttime"])
@@ -33,14 +35,14 @@ def load_data(path, default_age = 2026):
     df["hour"] = df["starttime"].dt.hour
     df["day_of_week"] = df["starttime"].dt.day_name()
     # [DA1] drop long trips (>3 hours)
-    df = df[df["trip_minutes"] <= 180]
+    df = df[df["trip_minutes"] <= max_minutes]
 
     return df
 
 
 st.title("Boston Blue Bikes from September 2020")
 df = load_data("202009-bluebikes-tripdata.csv")
-st.write(f"Loaded {len(df):,} trips.")
+st.write(f"Loaded {len(df):} trips.")
 st.dataframe(df.head())
 
 # SIDEBAR FILTERS
@@ -59,7 +61,7 @@ filtered = df[df["usertype"].isin(user_types) & df["hour"].between(hour_range[0]
 # [DA4] add another single filter on the day of the week if not "ALL"
 if day_filter != "All":
     filtered = filtered[filtered["day_of_week"] == day_filter]
-st.write(f"Showing {len(filtered):,} of {len(df):,} trips.")
+st.write(f"Showing {len(filtered):} of {len(df):} trips.")
 
 import matplotlib.pyplot as plt
 
@@ -94,7 +96,7 @@ def summary_stats(trips_df):
     return total, median_min, n_stations
 total, median_min, n_stations = summary_stats(filtered)
 col1, col2, col3 =st.columns(3)
-col1.metric("Total trips", f"{total:,}")
+col1.metric("Total trips", total)
 col2.metric("Median trip", f"{median_min:.1f} min")
 col3.metric("Stations", n_stations)
 

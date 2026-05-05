@@ -11,24 +11,24 @@ from streamlit_folium import st_folium
 
 st.set_page_config(page_title="Where | Blue Bikes", page_icon="📍", layout="wide")
 
-@st.cache_data
-def load_data(path, sample_frac=1.0):
+def load_data(path, max_minutes=180):
     try:
         df = pd.read_csv(path)
     except FileNotFoundError:
         st.error(f"Could not find {path}")
         return pd.DataFrame()
 
-    df.columns = [c.strip().lower().replace(" ", "_") for c in df.columns]
+    new_columns = []
+    for col in df.columns:
+        new_columns.append(col.lower())
+    df.columns = new_columns
+
     df["starttime"] = pd.to_datetime(df["starttime"], errors="coerce")
     df = df.dropna(subset=["starttime"])
     df["trip_minutes"] = df["tripduration"] / 60
     df["hour"] = df["starttime"].dt.hour
     df["day_of_week"] = df["starttime"].dt.day_name()
-    df = df[df["trip_minutes"] <= 180]
-
-    if sample_frac < 1.0:
-        df = df.sample(frac=sample_frac, random_state=42)
+    df = df[df["trip_minutes"] <= max_minutes]
 
     return df
 
@@ -49,8 +49,6 @@ fig, ax = plt.subplots(figsize=(8,6))
 ax.barh(top.index, top.values, color="#0B3D91")
 ax.set_xlabel("Number of trips")
 ax.set_title(f"Top {n_stations} starting stations")
-plt.tight_layout()
-
 st.pyplot(fig)
 
 # Map
@@ -65,15 +63,12 @@ st.header("Top 5 stations breakdown")
 top5 = station_counts.head(5)
 # [DA8] iterate through DataFrame rows
 for index, row in top5.iterrows():
-    st.write(f"**{row['start_station_name']}** - {row['trips']:,} trips")
+    st.write(f"**{row['start_station_name']}** - {row['trips']} trips")
 
 # Map Pydeck scatterplot
-layer = pdk.Layer("ScatterplotLayer", data=station_counts, get_position =["start_station_longitude","start_station_latitude"], get_radius="trips /50", get_fill_color= [11,61,145,200],pickable=True,
-)
-view_state = pdk.ViewState(latitude=42.355, longitude=-71.085,zoom=12,
-)
-deck = pdk.Deck(layers=[layer],initial_view_state=view_state, tooltip={"text": "{start_station_name}\n{trips} trips"}, map_style="light",
-)
+layer = pdk.Layer("ScatterplotLayer", data=station_counts, get_position =["start_station_longitude","start_station_latitude"], get_radius="trips /50", get_fill_color= [11,61,145,200],pickable=True)
+view_state = pdk.ViewState(latitude=42.355, longitude=-71.085,zoom=12)
+deck = pdk.Deck(layers=[layer],initial_view_state=view_state, tooltip={"text": "{start_station_name}\n{trips} trips"}, map_style="light")
 st.pydeck_chart(deck)
 
 
@@ -87,8 +82,8 @@ m = folium.Map(location=[42.355, -71.085], zoom_start=13)
 # [DA8] iterate through the dataframe wors with iterrows()
 for index, row in station_counts.iterrows():
     folium.CircleMarker(location=[row["start_station_latitude"], row["start_station_longitude"]],
-                        radius=row["trips"]/500, popup=f"{row['start_station_name']}: {row['trips']:,} trips", color="darkblue",
+                        radius=row["trips"]/500, popup=f"{row['start_station_name']}: {row['trips']} trips", color="darkblue",
                         fill=True,fillOpacity=0.6,).add_to(m)
 # render inside streamlit
-st_folium(m, width=700, height=500, returned_objects=[])
+st_folium(m, width=700, height=500)
 
