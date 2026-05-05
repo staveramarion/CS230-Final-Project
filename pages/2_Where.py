@@ -20,7 +20,7 @@ def load_data(path, max_minutes=180):
 
     new_columns = []
     for col in df.columns:
-        new_columns.append(col.lower())
+        new_columns.append(col.lower().replace(" ","_"))
     df.columns = new_columns
 
     df["starttime"] = pd.to_datetime(df["starttime"], errors="coerce")

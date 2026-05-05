@@ -25,7 +25,7 @@ def load_data(path, max_minutes=180):
     # [DA1] clean columns names, making them lowercase with underscores
     new_columns = []
     for col in df.columns:
-        new_columns.append(col.lower())
+        new_columns.append(col.lower().replace(" ","_"))
     df.columns = new_columns
     # [DA1] parse the date columns
     df["starttime"] = pd.to_datetime(df["starttime"],errors="coerce")
