@@ -36,5 +36,5 @@ st.write("""
 
 st.header("AI use")
 st.write("""
-I used AI to help me with the more advances coding,and as a guide when setting up the multi-page Streamlit structure
+I used AI to help me with the more advanced coding,and as a guide when setting up the multi-page Streamlit structure
 """)
