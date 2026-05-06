@@ -34,3 +34,7 @@ st.write("""
 - Theme changes need a full restart.
 """)
 
+st.header("AI use")
+st.write("""
+I used AI to help me with the more advances coding,and as a guide when setting up the multi-page Streamlit structure
+""")
